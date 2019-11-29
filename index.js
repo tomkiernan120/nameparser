@@ -1,158 +1,172 @@
-/*!
- * Universal Module Definition (UMD) Boilerplate
- * (c) 2017 Chris Ferdinandi, MIT License, https://gomakethings.com
- */
- (((root, factory) => {
-  if ( typeof define === 'function' && define.amd ) {
-    define([], () => factory(root));
-  } else if ( typeof exports === 'object' ) {
-    module.exports = factory(root);
-  } else {
-    root.NameParser = factory(root);
-  }
- }))(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, window => {
-   //
-   // Variables
-   //
-   const trim = string => {
-    return string.replace( /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '' );
-   }
-
-   const privateAPIs = {
-    titles: ["Mr"," Mrs"," Miss"," Ms"," Dr"," Admiral"," Air Comm"," Ambassador"," Baron"," Baroness"," Brig &amp; Mrs"," Brig Gen"," Brigadier"," Brother"," Canon"," Capt"," Chief"," Cllr"," Col"," Commander"," Commander &amp; Mrs"," Consul"," Consul General"," Count"," Countess"," Countess of"," Cpl"," Dame"," Deputy"," Dr &amp; Mrs"," Drs"," Duchess"," Duke"," Earl"," Father"," General"," Gräfin"," HE"," HMA"," Her Grace"," His Excellency"," Ing"," Judge"," Justice"," Lady"," Lic"," Llc"," Lord"," Lord &amp; Lady"," Lt"," Lt Col"," Lt Cpl"," M"," Madam"," Madame"," Major"," Major General"," Marchioness"," Marquis"," Minister"," Mme"," Mr &amp; Dr"," Mr &amp; Mrs"," Mr &amp; Ms"," Prince"," Princess"," Prof"," Prof &amp; Dr"," Prof &amp; Mrs"," Prof &amp; Rev"," Prof Dame"," Prof Dr"," Pvt"," Rabbi"," Rear Admiral"," Rev"," Rev &amp; Mrs"," Rev Canon"," Rev Dr"," Senator"," Sgt"," Sheriff"," Sir"," Sir &amp; Lady"," Sister"," The Earl of"," The Hon"," The Hon Dr"," The Hon Lady"," The Hon Lord"," The Hon Mrs"," The Hon Sir"," The Honourable"," The Rt Hon"," The Rt Hon Dr"," The Rt Hon Lord"," The Rt Hon Sir"," The Rt Hon Visc"," Viscount"].map( (e) => {
-      return trim( e.toLowerCase() );
-    }),
-    punctuation: [],
-   }
-
-
-   //
-   // Methods
-   //
-
-   /**
-    * A private method
-    */
-   const isString = string => {
-     return typeof string === "string" ? true : false;
-   };
-
-   const removeAllPunctuation = (string) => {
-    return string.replace( /[^\d\w\s]/, '' );
-   }
-
-   const setString = string => {
-     publicAPIs.string = trim( string );
-   }
-
-   const getString = () => {
-    return publicAPIs.string;
-   }
-
-   const setParts = () => {
-    if( publicAPIs.string.length ){
-      publicAPIs.parts = publicAPIs.string.split(' ');
+(function (root, factory) {
+	if ( typeof define === 'function' && define.amd ) {
+		define(['buoy'], factory(root));
+	} else if ( typeof exports === 'object' ) {
+		module.exports = factory(require('buoy'));
+	} else {
+		root.clickMe = factory(root, root.buoy);
+	}
+})(typeof global !== 'undefined' ? global : this.window || this.global, function (root) {
+    var options = {};
+    var title = [
+      'Mr',
+      'Ms',
+      'Miss',
+      'Mrs',
+      'Mx',
+      'Master',
+      'Sir',
+      'Madam',
+      'Dame',
+      'Lord',
+      'Lady',
+      'Dr',
+      'Prof',
+      'Br',
+      'Sr',
+      'Fr',
+      'Rev',
+      'Pr',
+      'Elder'
+    ];
+    
+    var suffixes = {
+      "bt": "Baronet",
+      "bart": "Baronet",
+      "esq": "Esquire",
+      "VC": "Victoria Cross",
+      "gc": "Knight of the Order of the Garter",
+      "lg": "Lady of the Order of the Garter",
+      "kt": "Knight of the Order of the Thistle",
+      "lt": "Lady of the Order of the Thistle",
+      "kp": "Knight of the Order of Saint Patrick",
+      "gcb": "Knight/Dame Grand Cross of the Order of the Bath",
+      "om": "Order of Merit",
+      "gcsi": "Knight Grand Commander of the Order of the Star of India",
+    };
+    
+    function nameparser( string, options, settings ) {
+      return new Nameparser( string, settings, options );
     }
-   }
-
-   const upperCase = (string) => {
-    return string.toLowerCase().replace( /\b[a-z]/g, function(letter) {
-      return letter.toUpperCase();
-    })
-   }
-
-   const getParts = () => {
-    return publicAPIs.parts;
-   }
-
-   const parseForTitle = () => {
-    if( publicAPIs.parts.length ){
-
-      publicAPIs.parts.map((e,i) => {
-        let itemIndex = privateAPIs.titles.indexOf( removeAllPunctuation( trim(e).toLowerCase() ) );
-        if( itemIndex > -1 ) {
-          publicAPIs.parsedData.title = upperCase(privateAPIs.titles[itemIndex]);
-          publicAPIs.parts.splice(i,1);
+    
+    Nameparser.prototype.init = function( string, settings, options ) {
+      this.options = {
+        original: '',
+        tokens: []
+      };
+    
+      if ( options ) {
+        this.options = extend(true, this.options, options);
+      }
+    
+      return this.tokenizer( string );
+    };
+    
+    nameparser.tokenizer = function(string) {
+      this.options.original = string;
+      
+      var current = 0;
+      var tokens = [];
+      
+      
+    
+      while (current < string.length) {
+        var char = string[current];
+        
+        var WORD_CHARACTER = /\w/;
+        var WHITE_SPACE = /\s/;
+        var PUNCTUATION = /[^\s\w]/;
+        var NUMBER = /[0-9]/;
+        
+        
+        if( WHITE_SPACE.test( char ) ) {
+          current++;
+          continue;
         }
-      });
-    }
-   }
-
-    const parseNameParts = () => {
-      if( publicAPIs.parts.length ){
-
-        const length = publicAPIs.parts.length;
-
-        console.log( length );
-
-        publicAPIs.parts.map((e,i) => {
-          if( removeAllPunctuation( trim(e).toLowerCase() ) ){
-
-            console.log( publicAPIs.parsedData.forename ); 
-
-            if( !publicAPIs.parsedData.forename ){
-              publicAPIs.parsedData.forename = upperCase( e );
-              publicAPIs.parts.splice( i, 1 );
-              return;
-            }
-
-            if( !publicAPIs.parsedData.middlename && length == 3 ){
-              publicAPIs.parsedData.middlename = upperCase( e );
-              publicAPIs.parts.splice( i, 1 );
-              return;
-            }
-
-            console.log( e );
-
-            if( !publicAPIs.parsedData.surname ){
-              publicAPIs.parsedData.surname = upperCase( e );
-              publicAPIs.parts.splice( i, 1 );
-              return;
+        
+        if( PUNCTUATION.test( char ) ) {
+          this.options.tokens.push({ type: 'punctuation', value: char });
+          current++;
+          continue;
+        }
+        
+        if( NUMBER.test( char ) && char !== undefined ) {
+          var val = '';
+          
+          while( NUMBER.test( char ) && char !== undefined ) {
+            val += char;
+            char = string[++current];
+          }
+          
+          this.options.tokens.push({ type: 'number', value: val });
+        }
+        
+        if( WORD_CHARACTER.test( char ) && char !== undefined ) {
+          var val = '';
+          
+          while( WORD_CHARACTER.test( char ) && char !== undefined ) {
+            val += char;
+            char = string[++current];
+          }
+          
+          this.options.tokens.push({ type: 'string', value: val });
+          continue;
+        }
+        
+        current++;
+      }
+    
+      return this.options;
+    };
+    
+    nameparser.checkSettings = function(settings) {
+      if (!settings) {
+        return;
+      }
+    
+      if (typeof settings !== 'object') {
+        throw new Error('Please make sure any settings are of type `object` you passed: ' + typeof settings);
+      }
+    
+      if (settings.cache) {
+        throw new Error('You cannot redifine cache');
+      }
+    
+      if (settings.original) {
+        throw new Error('You cannot redifine original');
+      }
+    };
+    
+    var extend = function() {
+      var extended = {};
+      var deep = false;
+      var i = 0;
+      var length = arguments.length;
+    
+      if (Object.prototype.toString.call(arguments[0]) === '[object Boolean]') {
+        deep = arguments[0];
+        i++;
+      }
+    
+      var merge = function(obj) {
+        for (var prop in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+            if (deep && Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+              extended[prop] = extend(true, extended[prop], obj[prop]);
+            } else {
+              extended[prop] = obj[prop];
             }
           }
-        })
+        }
+      };
+    
+      for (; i < length; i++) {
+        var obj = arguments[i];
+        merge(obj);
       }
-    }
-
-   const publicAPIs = {
-    parsedData: {
-      title: '',
-      forename: '',
-      middlename: '',
-      surname: '',
-      suffixes: null
-    }
-   };
-
-
-
-
-   /**
-    * public method
-    */
-   publicAPIs.parse = string => {
-     if( !isString( string ) ){
-      throw new Error( "Please enter a string" );
-     }
-
-     setString( string );
-     setParts();
-     parseForTitle();
-     parseNameParts();
-
-     return publicAPIs.parsedData;
-   };
-
-
-   //
-   // Return the Public APIs
-   //
-
-   return publicAPIs;
- });
-
-
-
- var parse = NameParser.parse('Mr. Tom Kiernan');
-
- console.log( NameParser )
+      return extended;
+    };
+    
+    root.nameparser = nameparser;
+    return nameparser;
+});

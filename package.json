@@ -4,11 +4,15 @@
   "description": "Name parsing script",
   "main": "index.js",
   "scripts": {
+    "dev": "webpack --watch --development",
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
   }
 }
