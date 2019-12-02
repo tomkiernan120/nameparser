@@ -36,7 +36,7 @@ module.exports = function() {
     }
     
     if( WORD_CHARACTER.test( char ) && char !== undefined ) {
-      var val = '';
+      let val = '';
       
       while( WORD_CHARACTER.test( char ) && char !== undefined ) {
         val += char;
@@ -50,5 +50,5 @@ module.exports = function() {
     current++;
   }
 
-  return this.defaults.tokens;
+  return this;
 };

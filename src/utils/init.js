@@ -5,8 +5,10 @@ module.exports = function init( string, options, settings ) {
     original: string,
     tokens: [],
   };
+  
     
   this.tokenizer();
+  this.parser();
   
   return this.defaults;
 };
